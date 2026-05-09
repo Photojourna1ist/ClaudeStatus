@@ -3,6 +3,18 @@
     <channel>
         <title>ClaudeStatus</title>
         <item>
+            <title>1.1</title>
+            <pubDate>Sat, 09 May 2026 15:49:57 -0500</pubDate>
+            <link>https://github.com/Photojourna1ist/ClaudeStatus</link>
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>1.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.4</sparkle:minimumSystemVersion>
+            <enclosure url="https://photojourna1ist.github.io/ClaudeStatus/ClaudeStatus-1.1.zip" length="1895758" type="application/octet-stream" sparkle:edSignature="zbbh3pdXa2gdLOsxEfuO+O+IxxHJhFTHxcMXWUKNYhMIJDQljWU3reXueG+QqINKw7Qs35m7JrsKAI+TM9IHDA=="/>
+            <sparkle:deltas>
+                <enclosure url="https://photojourna1ist.github.io/ClaudeStatus/ClaudeStatus2-1.delta" sparkle:deltaFrom="1" length="533734" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="977808" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="YP3xPzTxqf6R7l84zXGqyw0YV3XsqyZlcoIo/ebuenF2cKYWUCkalDlt8jiBb0jpYa2Rj7UQY0bZq5IAU7wZAw=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>1.0</title>
             <pubDate>Fri, 08 May 2026 20:33:29 -0500</pubDate>
             <link>https://github.com/Photojourna1ist/ClaudeStatus</link>
