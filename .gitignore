@@ -20,3 +20,6 @@ Package.resolved.bak
 # Distribution artifacts (built locally, published to GitHub Releases instead)
 dist/
 *.zip
+
+# Released zips DO get committed under docs/
+!docs/*.zip
