@@ -25,6 +25,7 @@ EXT="/Applications/ClaudeStatus.app/Contents/PlugIns/ClaudeStatusWidgetExtension
 pluginkit -r "$EXT" 2>/dev/null || true
 pluginkit -a "$EXT"
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "/Applications/ClaudeStatus.app"
+touch "/Applications/ClaudeStatus.app"  # invalidate icon cache
 
 echo "[6/7] Kick widget cache daemons..."
 killall chronod 2>/dev/null || true
@@ -33,6 +34,7 @@ killall WallpaperAgent 2>/dev/null || true
 killall Wallpaper 2>/dev/null || true
 killall ControlCenter 2>/dev/null || true
 killall Dock 2>/dev/null || true
+killall Finder 2>/dev/null || true
 sleep 2
 
 echo "[7/7] Launch app..."
