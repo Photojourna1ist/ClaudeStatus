@@ -121,7 +121,7 @@ public struct UsageHero: View {
     public let percentFontSize: CGFloat
     public let barHeight: CGFloat
 
-    public init(label: String = "5h",
+    public init(label: String = "Current Session",
                 utilization: Double?,
                 resetDate: Date?,
                 timerFontSize: CGFloat = 22,

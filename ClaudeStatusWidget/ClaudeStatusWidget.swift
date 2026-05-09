@@ -70,7 +70,7 @@ struct WidgetSmallView: View {
                 Image(systemName: "hourglass")
                     .font(.system(size: 10))
                     .foregroundStyle(accent.opacity(0.7))
-                Text("5h")
+                Text("Current Session")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(labelGray)
                 Spacer()
@@ -110,7 +110,7 @@ struct WidgetMediumView: View {
 
             HStack(alignment: .top, spacing: 10) {
                 UsageColumn(
-                    label: "7d",
+                    label: "Weekly Limit",
                     utilization: entry.usage?.sevenDay?.utilization,
                     timer: entry.usage?.sevenDay?.resetDate,
                     detail: nil,
@@ -121,7 +121,7 @@ struct WidgetMediumView: View {
                 if let extra = entry.usage?.extraUsage, extra.isEnabled, let util = extra.utilization {
                     Divider().frame(height: 44)
                     UsageColumn(
-                        label: "Credits",
+                        label: "Extra Usage",
                         utilization: util,
                         timer: nil,
                         detail: UsageColumn.creditsDetail(used: extra.usedCredits, limit: extra.monthlyLimit),
@@ -150,11 +150,11 @@ struct WidgetLargeView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             StatusHeader()
-            UsageRow(label: "5-hour window",
+            UsageRow(label: "Current Session",
                      utilization: entry.usage?.fiveHour?.utilization,
                      resetDate: entry.usage?.fiveHour?.resetDate,
                      primary: true)
-            UsageRow(label: "7-day (all models)",
+            UsageRow(label: "Weekly Limit",
                      utilization: entry.usage?.sevenDay?.utilization,
                      resetDate: entry.usage?.sevenDay?.resetDate,
                      primary: true)
@@ -162,7 +162,7 @@ struct WidgetLargeView: View {
                 let creditsAccent = ThemeStore.readAccentColor(forUtilization: util)
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
-                        Text("Extra credits (monthly)")
+                        Text("Extra Usage")
                             .font(.system(size: 10))
                             .foregroundStyle(Color(white: 0.55))
                         Spacer()

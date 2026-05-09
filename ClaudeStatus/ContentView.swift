@@ -189,7 +189,7 @@ struct SmallView: View {
                 Image(systemName: "hourglass")
                     .font(.system(size: 10))
                     .foregroundColor(ThemeStore.shared.accent.opacity(0.7))
-                Text("5h")
+                Text("Current Session")
                     .font(.system(size: 10, weight: .bold))
                     .tracking(0.5)
                     .foregroundColor(Color(white: 0.55))
@@ -241,13 +241,13 @@ struct MediumView: View {
             }
 
             MediumTrackerRow(
-                label: "5h",
+                label: "Current Session",
                 utilization: store.fiveHour?.utilization,
                 resetDate: store.fiveHour?.resetDate
             )
 
             MediumTrackerRow(
-                label: "7d",
+                label: "Weekly Limit",
                 utilization: store.sevenDay?.utilization,
                 resetDate: store.sevenDay?.resetDate
             )
@@ -315,7 +315,7 @@ struct MediumCreditsRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("Credits")
+                Text("Extra Usage")
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(Color(white: 0.55))
                 if let used, let limit {
@@ -357,14 +357,14 @@ struct LargeView: View {
             }
 
             UsageRow(
-                label: "5-hour window",
+                label: "Current Session",
                 utilization: store.fiveHour?.utilization,
                 resetDate: store.fiveHour?.resetDate,
                 primary: true
             )
 
             UsageRow(
-                label: "7-day (all models)",
+                label: "Weekly Limit",
                 utilization: store.sevenDay?.utilization,
                 resetDate: store.sevenDay?.resetDate,
                 primary: false
@@ -373,7 +373,7 @@ struct LargeView: View {
             if let extra = store.extraUsage, extra.isEnabled, let util = extra.utilization {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
-                        Text("Extra credits (monthly)")
+                        Text("Extra Usage")
                             .font(.system(size: 10))
                             .foregroundColor(Color(white: 0.55))
                         Spacer()
@@ -446,7 +446,7 @@ struct WideView: View {
 
             HStack(alignment: .top, spacing: 10) {
                 UsageColumn(
-                    label: "7d",
+                    label: "Weekly Limit",
                     utilization: store.sevenDay?.utilization,
                     timer: store.sevenDay?.resetDate,
                     detail: nil
@@ -454,7 +454,7 @@ struct WideView: View {
                 if let extra = store.extraUsage, extra.isEnabled, let util = extra.utilization {
                     Divider().frame(height: 44)
                     UsageColumn(
-                        label: "Credits",
+                        label: "Extra Usage",
                         utilization: util,
                         timer: nil,
                         detail: UsageColumn.creditsDetail(used: extra.usedCredits, limit: extra.monthlyLimit)
