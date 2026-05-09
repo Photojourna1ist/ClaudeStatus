@@ -19,13 +19,35 @@ public struct PillBar: View {
     }
 
     public var body: some View {
+        let frac = min(max(utilization / 100.0, 0), 1)
+        let mode = ThemeStore.readBarMode()
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Color.white.opacity(0.10))
-                Capsule()
-                    .fill(UsageColor.color(for: utilization))
-                    .frame(width: geo.size.width * min(max(utilization / 100.0, 0), 1))
+                Capsule().fill(Color.white.opacity(0.10))
+                switch mode {
+                case .solid:
+                    Capsule()
+                        .fill(ThemeStore.readBarSolidColor())
+                        .frame(width: geo.size.width * frac)
+                case .gradient:
+                    LinearGradient(stops: Color.usageGradientStops, startPoint: .leading, endPoint: .trailing)
+                        .frame(width: geo.size.width, height: height)
+                        .mask(
+                            HStack(spacing: 0) {
+                                Capsule().frame(width: geo.size.width * frac)
+                                Spacer(minLength: 0)
+                            }
+                        )
+                case .stepped:
+                    LinearGradient(stops: Color.usageSteppedStops, startPoint: .leading, endPoint: .trailing)
+                        .frame(width: geo.size.width, height: height)
+                        .mask(
+                            HStack(spacing: 0) {
+                                Capsule().frame(width: geo.size.width * frac)
+                                Spacer(minLength: 0)
+                            }
+                        )
+                }
             }
         }
         .frame(height: height)

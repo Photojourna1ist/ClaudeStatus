@@ -1,6 +1,8 @@
 import SwiftUI
 import AppKit
 import Sparkle
+import WidgetKit
+import ServiceManagement
 
 @main
 struct ClaudeStatusApp: App {
@@ -33,13 +35,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel = FloatingPanel()
         panel.contentViewController = hosting
 
-        // Restore saved position, or place top-right
-        if let frameStr = UserDefaults.standard.string(forKey: "windowFrame") {
-            panel.setFrameOrigin(NSRectFromString(frameStr).origin)
-        } else if let screen = NSScreen.main {
-            let f = screen.visibleFrame
-            panel.setFrameOrigin(NSPoint(x: f.maxX - 240, y: f.maxY - 180))
-        }
+        positionPanel(useSaved: true)
 
         panel.makeKeyAndOrderFront(nil)
 
@@ -54,7 +50,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Touch the updater so its first scheduled check is queued.
         _ = updaterController
 
+        LaunchAtLogin.applyCurrentPreference()
+
         store.start()
+
+        // Reload any placed widgets so they pick up the latest build/theme.
+        WidgetCenter.shared.reloadAllTimelines()
+        SettingsWindowController.shared.store = store
+    }
+
+    /// Primary screen has its frame origin at (0,0) on macOS — that is the display with the menu bar.
+    /// NSScreen.main is unreliable during applicationDidFinishLaunching.
+    private var primaryScreen: NSScreen? {
+        NSScreen.screens.first(where: { $0.frame.origin == .zero }) ?? NSScreen.main
+    }
+
+    /// Position the floating panel. If useSaved and the saved origin is on a currently-visible
+    /// screen, restore it. Otherwise place it top-right of the primary screen.
+    func positionPanel(useSaved: Bool) {
+        if useSaved, let frameStr = UserDefaults.standard.string(forKey: "windowFrame") {
+            let saved = NSRectFromString(frameStr)
+            let onScreen = NSScreen.screens.contains { $0.visibleFrame.contains(saved.origin) }
+            if onScreen {
+                panel.setFrameOrigin(saved.origin)
+                return
+            }
+        }
+        if let screen = primaryScreen {
+            let f = screen.visibleFrame
+            let size = panel.frame.size
+            let x = f.maxX - size.width - 20
+            let y = f.maxY - size.height - 20
+            panel.setFrameOrigin(NSPoint(x: x, y: y))
+        }
+    }
+
+    /// Forget any saved position and snap to top-right of the primary screen.
+    func resetWindowPosition() {
+        UserDefaults.standard.removeObject(forKey: "windowFrame")
+        positionPanel(useSaved: false)
+        panel.makeKeyAndOrderFront(nil)
     }
 }
 
