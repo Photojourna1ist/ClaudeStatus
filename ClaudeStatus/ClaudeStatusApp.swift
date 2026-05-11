@@ -16,7 +16,7 @@ struct ClaudeStatusApp: App {
     }
 }
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     var panel: FloatingPanel!
     let store = UsageStore()
 
@@ -37,7 +37,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         positionPanel(useSaved: true)
 
-        panel.makeKeyAndOrderFront(nil)
+        // Start hidden - user shows via menu bar icon
+        // Set up a menu-bar status item so the user can hide/show the panel
+        // and quit the app cleanly. Without this, an LSUIElement app has no UI surface
+        // when the panel is closed.
+        setupStatusItem()
+
 
         NotificationCenter.default.addObserver(
             forName: NSWindow.didMoveNotification,
@@ -90,6 +95,71 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.removeObject(forKey: "windowFrame")
         positionPanel(useSaved: false)
         panel.makeKeyAndOrderFront(nil)
+    }
+
+    // MARK: - Menu-bar status item
+
+    var statusItem: NSStatusItem?
+
+    private func setupStatusItem() {
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        if let button = item.button {
+            button.image = NSImage(systemSymbolName: "hourglass", accessibilityDescription: "Claude Status")
+        }
+        let menu = NSMenu()
+        menu.delegate = self
+        menu.addItem(NSMenuItem(title: "Show Floating Window", action: #selector(toggleFloatingWindow(_:)), keyEquivalent: ""))
+        menu.addItem(NSMenuItem.separator())
+        menu.addItem(NSMenuItem(title: "Refresh Now", action: #selector(menuRefreshNow(_:)), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Settings…", action: #selector(menuOpenSettings(_:)), keyEquivalent: ","))
+        menu.addItem(NSMenuItem(title: "Check for Updates…", action: #selector(menuCheckForUpdates(_:)), keyEquivalent: ""))
+        menu.addItem(NSMenuItem.separator())
+        menu.addItem(NSMenuItem(title: "Quit ClaudeStatus", action: #selector(menuQuit(_:)), keyEquivalent: "q"))
+        item.menu = menu
+        statusItem = item
+    }
+
+    @objc private func toggleFloatingWindow(_ sender: Any?) {
+        if panel.isVisible {
+            panel.orderOut(nil)
+        } else {
+            positionPanel(useSaved: true)
+            panel.makeKeyAndOrderFront(nil)
+            store.refreshNow()  // fresh data the moment the user shows the panel
+        }
+    }
+
+    @objc private func menuRefreshNow(_ sender: Any?) {
+        store.refreshNow()
+    }
+
+    @objc private func menuOpenSettings(_ sender: Any?) {
+        SettingsWindowController.shared.show()
+    }
+
+    @objc private func menuCheckForUpdates(_ sender: Any?) {
+        updaterController.checkForUpdates(nil)
+    }
+
+    @objc private func menuQuit(_ sender: Any?) {
+        NSApp.terminate(nil)
+    }
+
+    func menuWillOpen(_ menu: NSMenu) {
+        if let item = menu.item(at: 0) {
+            item.title = panel.isVisible ? "Hide Floating Window" : "Show Floating Window"
+        }
+        // Opening the menu = active engagement; refresh now so the user sees fresh data
+        // immediately if they pick Show Floating Window.
+        store.refreshNow()
+    }
+
+    /// Programmatically pops up the menu attached to the menu-bar status item.
+    /// Used when the user taps the hourglass inside the floating window header.
+    func popUpStatusMenu() {
+        guard let item = statusItem, let button = item.button, let menu = item.menu else { return }
+        // popUpMenu(_:) shows the menu under the status item button itself.
+        button.performClick(nil)
     }
 }
 

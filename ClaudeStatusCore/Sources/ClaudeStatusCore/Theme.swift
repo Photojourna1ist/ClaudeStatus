@@ -1,6 +1,8 @@
 import SwiftUI
 #if canImport(AppKit)
 import AppKit
+#elseif canImport(UIKit)
+import UIKit
 #endif
 
 // MARK: - Color hex helpers
@@ -30,6 +32,14 @@ public extension Color {
         let r = Int(round(ns.redComponent * 255))
         let g = Int(round(ns.greenComponent * 255))
         let b = Int(round(ns.blueComponent * 255))
+        return String(format: "#%02X%02X%02X",
+                      max(0, min(255, r)), max(0, min(255, g)), max(0, min(255, b)))
+        #elseif canImport(UIKit)
+        var rF: CGFloat = 0, gF: CGFloat = 0, bF: CGFloat = 0, aF: CGFloat = 0
+        UIColor(self).getRed(&rF, green: &gF, blue: &bF, alpha: &aF)
+        let r = Int(round(rF * 255))
+        let g = Int(round(gF * 255))
+        let b = Int(round(bF * 255))
         return String(format: "#%02X%02X%02X",
                       max(0, min(255, r)), max(0, min(255, g)), max(0, min(255, b)))
         #else
@@ -117,10 +127,28 @@ public enum ColorMode: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+// MARK: - BackgroundMode
+
+public enum BackgroundMode: String, CaseIterable, Identifiable, Sendable {
+    case solid
+    case fadeFromLight
+    case fadeFromDark
+
+    public var id: String { rawValue }
+    public var displayName: String {
+        switch self {
+        case .solid:         return "Solid"
+        case .fadeFromLight: return "Light gradient"
+        case .fadeFromDark:  return "Dark gradient"
+        }
+    }
+}
+
 // MARK: - Theme storage
 
 public enum ThemeKeys {
     public static let backgroundHex      = "themeBackgroundHex"
+    public static let backgroundMode     = "themeBackgroundMode"
     public static let accentHex          = "themeAccentHex"
     public static let barHex             = "themeBarHex"
     public static let accentMode         = "themeAccentMode"
@@ -131,6 +159,7 @@ public enum ThemeKeys {
 
 public enum ThemeDefaults {
     public static let backgroundHex      = "#000000"
+    public static let backgroundMode     = BackgroundMode.solid
     public static let accentHex          = "#FF9500"
     public static let barHex             = ""
     public static let accentMode         = ColorMode.solid
@@ -144,6 +173,7 @@ public final class ThemeStore: ObservableObject {
     public static let shared = ThemeStore()
 
     @Published public var backgroundHex: String { didSet { Self.write(backgroundHex, key: ThemeKeys.backgroundHex) } }
+    @Published public var backgroundMode: BackgroundMode { didSet { Self.write(backgroundMode.rawValue, key: ThemeKeys.backgroundMode) } }
     @Published public var accentHex:     String { didSet { Self.write(accentHex,     key: ThemeKeys.accentHex) } }
     @Published public var barHex:        String { didSet { Self.write(barHex,        key: ThemeKeys.barHex) } }
     @Published public var accentMode:    ColorMode { didSet { Self.write(accentMode.rawValue, key: ThemeKeys.accentMode) } }
@@ -152,6 +182,11 @@ public final class ThemeStore: ObservableObject {
     public init() {
         let d = SharedCache.defaults
         self.backgroundHex = d.string(forKey: ThemeKeys.backgroundHex) ?? ThemeDefaults.backgroundHex
+        if let raw = d.string(forKey: ThemeKeys.backgroundMode), let m = BackgroundMode(rawValue: raw) {
+            self.backgroundMode = m
+        } else {
+            self.backgroundMode = ThemeDefaults.backgroundMode
+        }
         self.accentHex     = d.string(forKey: ThemeKeys.accentHex)     ?? ThemeDefaults.accentHex
         self.barHex        = d.string(forKey: ThemeKeys.barHex)        ?? ThemeDefaults.barHex
 
@@ -188,6 +223,32 @@ public final class ThemeStore: ObservableObject {
         Color(hexOrFallback: barHex, fallback: ThemeDefaults.accentColor)
     }
 
+
+    public var backgroundStyle: AnyShapeStyle {
+        let c = background
+        switch backgroundMode {
+        case .solid:
+            return AnyShapeStyle(c)
+        case .fadeFromLight:
+            return AnyShapeStyle(LinearGradient(colors: [Color.white, c], startPoint: .top, endPoint: .bottom))
+        case .fadeFromDark:
+            return AnyShapeStyle(LinearGradient(colors: [Color.black, c], startPoint: .top, endPoint: .bottom))
+        }
+    }
+
+    public static func readBackgroundStyle() -> AnyShapeStyle {
+        let raw = SharedCache.defaults.string(forKey: ThemeKeys.backgroundMode) ?? ThemeDefaults.backgroundMode.rawValue
+        let mode = BackgroundMode(rawValue: raw) ?? ThemeDefaults.backgroundMode
+        let c = readBackground()
+        switch mode {
+        case .solid:
+            return AnyShapeStyle(c)
+        case .fadeFromLight:
+            return AnyShapeStyle(LinearGradient(colors: [Color.white, c], startPoint: .top, endPoint: .bottom))
+        case .fadeFromDark:
+            return AnyShapeStyle(LinearGradient(colors: [Color.black, c], startPoint: .top, endPoint: .bottom))
+        }
+    }
     public func resetToDefaults() {
         backgroundHex = ThemeDefaults.backgroundHex
         accentHex     = ThemeDefaults.accentHex

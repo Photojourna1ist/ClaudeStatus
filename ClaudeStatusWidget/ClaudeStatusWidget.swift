@@ -34,7 +34,7 @@ struct ClaudeStatusWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: UsageProvider()) { entry in
             ClaudeStatusWidgetEntryView(entry: entry)
-                .containerBackground(ThemeStore.readBackground(), for: .widget)
+                .containerBackground(ThemeStore.readBackgroundStyle(), for: .widget)
         }
         .configurationDisplayName("Claude Status")
         .description("Time until your Claude usage limits reset.")
@@ -189,3 +189,69 @@ struct WidgetLargeView: View {
     }
 }
 
+
+// MARK: - Hero Donut Widget
+
+struct ClaudeStatusHeroDonutWidget: Widget {
+    let kind: String = "ClaudeStatusHeroDonutWidget"
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: UsageProvider()) { entry in
+            UsageDonutHero(
+                fiveHourUtil: entry.usage?.fiveHour?.utilization,
+                fiveHourReset: entry.usage?.fiveHour?.resetDate,
+                sevenDayUtil: entry.usage?.sevenDay?.utilization,
+                extraUtil: entry.usage?.extraUsage?.utilization,
+                extraUsed: entry.usage?.extraUsage?.usedCredits,
+                extraLimit: entry.usage?.extraUsage?.monthlyLimit
+            )
+            .containerBackground(ThemeStore.readBackgroundStyle(), for: .widget)
+        }
+        .configurationDisplayName("Claude Status: Hero Donut")
+        .description("Big current-session percentage with a donut chart and color-dot legend.")
+        .supportedFamilies([.systemMedium])
+    }
+}
+
+// MARK: - Rings Widget
+
+struct ClaudeStatusRingsWidget: Widget {
+    let kind: String = "ClaudeStatusRingsWidget"
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: UsageProvider()) { entry in
+            UsageDonutRings(
+                fiveHourUtil: entry.usage?.fiveHour?.utilization,
+                sevenDayUtil: entry.usage?.sevenDay?.utilization,
+                extraUtil: entry.usage?.extraUsage?.utilization,
+                extraUsed: entry.usage?.extraUsage?.usedCredits,
+                extraLimit: entry.usage?.extraUsage?.monthlyLimit
+            )
+            .containerBackground(ThemeStore.readBackgroundStyle(), for: .widget)
+        }
+        .configurationDisplayName("Claude Status: Concentric Rings")
+        .description("Three nested ring arcs, one per tracker, with the most urgent percentage in the center.")
+        .supportedFamilies([.systemMedium])
+    }
+}
+
+// MARK: - Trio Widget
+
+struct ClaudeStatusTrioWidget: Widget {
+    let kind: String = "ClaudeStatusTrioWidget"
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: UsageProvider()) { entry in
+            UsageDonutTrio(
+                fiveHourUtil: entry.usage?.fiveHour?.utilization,
+                fiveHourReset: entry.usage?.fiveHour?.resetDate,
+                sevenDayUtil: entry.usage?.sevenDay?.utilization,
+                sevenDayReset: entry.usage?.sevenDay?.resetDate,
+                extraUtil: entry.usage?.extraUsage?.utilization,
+                extraUsed: entry.usage?.extraUsage?.usedCredits,
+                extraLimit: entry.usage?.extraUsage?.monthlyLimit
+            )
+            .containerBackground(ThemeStore.readBackgroundStyle(), for: .widget)
+        }
+        .configurationDisplayName("Claude Status: Trio Donuts")
+        .description("Three small donuts side-by-side, one per tracker.")
+        .supportedFamilies([.systemMedium])
+    }
+}

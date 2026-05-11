@@ -5,5 +5,8 @@ import SwiftUI
 struct ClaudeStatusWidgetBundle: WidgetBundle {
     var body: some Widget {
         ClaudeStatusWidget()
+        ClaudeStatusHeroDonutWidget()
+        ClaudeStatusRingsWidget()
+        ClaudeStatusTrioWidget()
     }
 }

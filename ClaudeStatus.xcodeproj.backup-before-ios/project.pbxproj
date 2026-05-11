@@ -7,41 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		13D31B219AB725C90FB96EEF /* ClaudeStatusiOSWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0672FA53CC60A0A7585630 /* ClaudeStatusiOSWidgetBundle.swift */; };
-		20932B950BA2D34D106C3FEF /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E0C7BD1FF7F84CD4800B83 /* NotificationManager.swift */; };
-		352461837F744928ECF6F04B /* ClaudeStatusiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BFF927B1025DE527A8BECC /* ClaudeStatusiOSApp.swift */; };
-		3816728835340120A5F61D4A /* ClaudeStatusiOSWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6014A5BF1754AFF90B6C1A01 /* ClaudeStatusiOSWidget.swift */; };
-		5D6ACF4D8BACDB3B4674800C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 553D1B3678A504F6918B2D01 /* Foundation.framework */; };
-		5ECC503B5274FC0F25E1F7DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 927CEA170CCB6D03BB87AF2C /* Assets.xcassets */; };
-		9541ED3E1AB0BFF8A4581DFC /* iOSSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1696CCA63D6F9664883FC53D /* iOSSettingsView.swift */; };
-		BA0DE67700B3F63AE264EAA9 /* ClaudeStatusCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0CB2287B2FCB1D490371C15D /* ClaudeStatusCore */; };
-		BDA753D3236FE6B7AFCD87BB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 553D1B3678A504F6918B2D01 /* Foundation.framework */; };
-		CC25A97C8E385830D14E2756 /* ClaudeStatusCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5241A79ABAE8515F84F46CAB /* ClaudeStatusCore */; };
-		D1B3092707BF7200F93F4519 /* ClaudeStatusiOSWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A44805B550A65DFD1E49F49E /* ClaudeStatusiOSWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EBF80B5F2FAEABCE00BB132E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBF80B5E2FAEABCE00BB132E /* WidgetKit.framework */; };
 		EBF80B612FAEABCE00BB132E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBF80B602FAEABCE00BB132E /* SwiftUI.framework */; };
 		EBF80B702FAEABD000BB132E /* ClaudeStatusWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EBF80B5C2FAEABCE00BB132E /* ClaudeStatusWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EBF80B782FAEB0FE00BB132E /* ClaudeStatusCore in Frameworks */ = {isa = PBXBuildFile; productRef = EBF80B772FAEB0FE00BB132E /* ClaudeStatusCore */; };
 		EBF80B7A2FAEB14A00BB132E /* ClaudeStatusCore in Frameworks */ = {isa = PBXBuildFile; productRef = EBF80B792FAEB14A00BB132E /* ClaudeStatusCore */; };
 		EBF80B812FAEC40B00BB132E /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = EBF80B802FAEC40B00BB132E /* Sparkle */; };
-		FCC55A0F71F22B5611AE183F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3AF3F5C48CFD39907D5362A /* ContentView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		587716A2737A230C14F36FEF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = EBF80B422FAEA92300BB132E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D33C724BABBD20950ED947E0;
-			remoteInfo = ClaudeStatusiOSWidget;
-		};
-		5E72314586863D81963F4D7D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = EBF80B422FAEA92300BB132E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DF5652BBADC75B5F3155988E;
-			remoteInfo = ClaudeStatusiOSWidget;
-		};
 		EBF80B6E2FAEABD000BB132E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EBF80B422FAEA92300BB132E /* Project object */;
@@ -52,17 +26,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		E97E386AD1EA2F6B986EF63F /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				D1B3092707BF7200F93F4519 /* ClaudeStatusiOSWidget.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		EBF80B752FAEABD000BB132E /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -77,19 +40,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1696CCA63D6F9664883FC53D /* iOSSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = iOSSettingsView.swift; sourceTree = "<group>"; };
-		4C0672FA53CC60A0A7585630 /* ClaudeStatusiOSWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClaudeStatusiOSWidgetBundle.swift; sourceTree = "<group>"; };
-		553D1B3678A504F6918B2D01 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		5A5192B2C93AF213034D619E /* ClaudeStatusiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClaudeStatusiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		6014A5BF1754AFF90B6C1A01 /* ClaudeStatusiOSWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClaudeStatusiOSWidget.swift; sourceTree = "<group>"; };
-		70E0C7BD1FF7F84CD4800B83 /* NotificationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
-		7E8873D4AA578DA3F9969722 /* ClaudeStatusiOSWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ClaudeStatusiOSWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		859C26E779400077BCEF7E8A /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		927CEA170CCB6D03BB87AF2C /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A44805B550A65DFD1E49F49E /* ClaudeStatusiOSWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ClaudeStatusiOSWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		B695901C04058B2202B6215B /* ClaudeStatusiOSWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClaudeStatusiOSWidget.swift; sourceTree = "<group>"; };
-		B6BFF927B1025DE527A8BECC /* ClaudeStatusiOSApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClaudeStatusiOSApp.swift; sourceTree = "<group>"; };
-		E3AF3F5C48CFD39907D5362A /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EBF80B4A2FAEA92300BB132E /* ClaudeStatus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClaudeStatus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EBF80B5C2FAEABCE00BB132E /* ClaudeStatusWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ClaudeStatusWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EBF80B5E2FAEABCE00BB132E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -110,8 +60,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		EBF80B4C2FAEA92300BB132E /* ClaudeStatus */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = ClaudeStatus;
 			sourceTree = "<group>";
 		};
@@ -126,15 +74,6 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		35A196C145651CEA63D92D31 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				BDA753D3236FE6B7AFCD87BB /* Foundation.framework in Frameworks */,
-				CC25A97C8E385830D14E2756 /* ClaudeStatusCore in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		EBF80B472FAEA92300BB132E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -154,59 +93,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F84264CBC8F30065CF3D8770 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5D6ACF4D8BACDB3B4674800C /* Foundation.framework in Frameworks */,
-				BA0DE67700B3F63AE264EAA9 /* ClaudeStatusCore in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1A7B6D9EA17114F24D7CFB78 /* ClaudeStatusiOS */ = {
-			isa = PBXGroup;
-			children = (
-				B6BFF927B1025DE527A8BECC /* ClaudeStatusiOSApp.swift */,
-				E3AF3F5C48CFD39907D5362A /* ContentView.swift */,
-				927CEA170CCB6D03BB87AF2C /* Assets.xcassets */,
-				70E0C7BD1FF7F84CD4800B83 /* NotificationManager.swift */,
-				1696CCA63D6F9664883FC53D /* iOSSettingsView.swift */,
-			);
-			name = ClaudeStatusiOS;
-			path = ClaudeStatusiOS;
-			sourceTree = "<group>";
-		};
-		2082C804CC052E9FD3481B09 /* ClaudeStatusiOSWidget */ = {
-			isa = PBXGroup;
-			children = (
-				4C0672FA53CC60A0A7585630 /* ClaudeStatusiOSWidgetBundle.swift */,
-				6014A5BF1754AFF90B6C1A01 /* ClaudeStatusiOSWidget.swift */,
-			);
-			name = ClaudeStatusiOSWidget;
-			path = ClaudeStatusiOSWidget;
-			sourceTree = "<group>";
-		};
-		49BE775F31A66D881E756C59 /* ClaudeStatusiOSWidget */ = {
-			isa = PBXGroup;
-			children = (
-				B695901C04058B2202B6215B /* ClaudeStatusiOSWidget.swift */,
-				859C26E779400077BCEF7E8A /* Assets.xcassets */,
-			);
-			name = ClaudeStatusiOSWidget;
-			path = ClaudeStatusiOSWidget;
-			sourceTree = "<group>";
-		};
-		E24553F3014392E4AEEA2C6D /* iOS */ = {
-			isa = PBXGroup;
-			children = (
-				553D1B3678A504F6918B2D01 /* Foundation.framework */,
-			);
-			name = iOS;
-			sourceTree = "<group>";
-		};
 		EBF80B412FAEA92300BB132E = {
 			isa = PBXGroup;
 			children = (
@@ -215,9 +104,6 @@
 				EBF80B622FAEABCE00BB132E /* ClaudeStatusWidget */,
 				EBF80B5D2FAEABCE00BB132E /* Frameworks */,
 				EBF80B4B2FAEA92300BB132E /* Products */,
-				1A7B6D9EA17114F24D7CFB78 /* ClaudeStatusiOS */,
-				49BE775F31A66D881E756C59 /* ClaudeStatusiOSWidget */,
-				2082C804CC052E9FD3481B09 /* ClaudeStatusiOSWidget */,
 			);
 			sourceTree = "<group>";
 		};
@@ -226,9 +112,6 @@
 			children = (
 				EBF80B4A2FAEA92300BB132E /* ClaudeStatus.app */,
 				EBF80B5C2FAEABCE00BB132E /* ClaudeStatusWidgetExtension.appex */,
-				5A5192B2C93AF213034D619E /* ClaudeStatusiOS.app */,
-				A44805B550A65DFD1E49F49E /* ClaudeStatusiOSWidget.appex */,
-				7E8873D4AA578DA3F9969722 /* ClaudeStatusiOSWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -238,7 +121,6 @@
 			children = (
 				EBF80B5E2FAEABCE00BB132E /* WidgetKit.framework */,
 				EBF80B602FAEABCE00BB132E /* SwiftUI.framework */,
-				E24553F3014392E4AEEA2C6D /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -246,49 +128,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4FFE552419F7527819FD7C72 /* ClaudeStatusiOS */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 80022CC0DE72C2D40DAD5A07 /* Build configuration list for PBXNativeTarget "ClaudeStatusiOS" */;
-			buildPhases = (
-				E4D787FD1BD6D747ACBB4250 /* Sources */,
-				35A196C145651CEA63D92D31 /* Frameworks */,
-				24883BC3C1A3303A03227951 /* Resources */,
-				E97E386AD1EA2F6B986EF63F /* Embed Foundation Extensions */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				EA1CB6DE0626CCB11C4575C9 /* PBXTargetDependency */,
-				DE3F1AC444A5E750701F80BB /* PBXTargetDependency */,
-			);
-			name = ClaudeStatusiOS;
-			packageProductDependencies = (
-				5241A79ABAE8515F84F46CAB /* ClaudeStatusCore */,
-			);
-			productName = ClaudeStatusiOS;
-			productReference = 5A5192B2C93AF213034D619E /* ClaudeStatusiOS.app */;
-			productType = "com.apple.product-type.application";
-		};
-		D33C724BABBD20950ED947E0 /* ClaudeStatusiOSWidget */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 7CDB633B2AB2A6FB91277581 /* Build configuration list for PBXNativeTarget "ClaudeStatusiOSWidget" */;
-			buildPhases = (
-				E535D4A85E5AB2F45C0F8E84 /* Sources */,
-				F84264CBC8F30065CF3D8770 /* Frameworks */,
-				3D86FBFEBB835CDCD880CAD8 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = ClaudeStatusiOSWidget;
-			packageProductDependencies = (
-				0CB2287B2FCB1D490371C15D /* ClaudeStatusCore */,
-			);
-			productName = ClaudeStatusiOSWidget;
-			productReference = 7E8873D4AA578DA3F9969722 /* ClaudeStatusiOSWidget.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		EBF80B492FAEA92300BB132E /* ClaudeStatus */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EBF80B552FAEA92400BB132E /* Build configuration list for PBXNativeTarget "ClaudeStatus" */;
@@ -376,28 +215,11 @@
 			targets = (
 				EBF80B492FAEA92300BB132E /* ClaudeStatus */,
 				EBF80B5B2FAEABCE00BB132E /* ClaudeStatusWidgetExtension */,
-				4FFE552419F7527819FD7C72 /* ClaudeStatusiOS */,
-				D33C724BABBD20950ED947E0 /* ClaudeStatusiOSWidget */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		24883BC3C1A3303A03227951 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5ECC503B5274FC0F25E1F7DA /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3D86FBFEBB835CDCD880CAD8 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		EBF80B482FAEA92300BB132E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -415,26 +237,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		E4D787FD1BD6D747ACBB4250 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				352461837F744928ECF6F04B /* ClaudeStatusiOSApp.swift in Sources */,
-				FCC55A0F71F22B5611AE183F /* ContentView.swift in Sources */,
-				20932B950BA2D34D106C3FEF /* NotificationManager.swift in Sources */,
-				9541ED3E1AB0BFF8A4581DFC /* iOSSettingsView.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E535D4A85E5AB2F45C0F8E84 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				13D31B219AB725C90FB96EEF /* ClaudeStatusiOSWidgetBundle.swift in Sources */,
-				3816728835340120A5F61D4A /* ClaudeStatusiOSWidget.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		EBF80B462FAEA92300BB132E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -452,16 +254,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		DE3F1AC444A5E750701F80BB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D33C724BABBD20950ED947E0 /* ClaudeStatusiOSWidget */;
-			targetProxy = 587716A2737A230C14F36FEF /* PBXContainerItemProxy */;
-		};
-		EA1CB6DE0626CCB11C4575C9 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = ClaudeStatusiOSWidget;
-			targetProxy = 5E72314586863D81963F4D7D /* PBXContainerItemProxy */;
-		};
 		EBF80B6F2FAEABD000BB132E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = EBF80B5B2FAEABCE00BB132E /* ClaudeStatusWidgetExtension */;
@@ -470,106 +262,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		97E0ABAF7F6142EA4BCDE092 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = KA8W38TG5Q;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ClaudeStatusiOSWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.samcraft.ClaudeStatus.iOS.Widget;
-				PRODUCT_NAME = ClaudeStatusiOSWidget;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		A1A5B18AA9A48B86B561B680 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "";
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"ClaudeStatusiOS/Preview Content\"";
-				DEVELOPMENT_TEAM = KA8W38TG5Q;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.samcraft.ClaudeStatus.iOS;
-				PRODUCT_NAME = ClaudeStatusiOS;
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		A2C62187334E7E4E9AFADC75 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = KA8W38TG5Q;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ClaudeStatusiOSWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.samcraft.ClaudeStatus.iOS.Widget;
-				PRODUCT_NAME = ClaudeStatusiOSWidget;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		BDD28D59CB3B5CA17FBE347D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "";
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"ClaudeStatusiOS/Preview Content\"";
-				DEVELOPMENT_TEAM = KA8W38TG5Q;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.samcraft.ClaudeStatus.iOS;
-				PRODUCT_NAME = ClaudeStatusiOS;
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
 		EBF80B532FAEA92400BB132E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -705,7 +397,6 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ClaudeStatus/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -713,6 +404,7 @@
 				);
 				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.samcraft.ClaudeStatus;
+				INFOPLIST_FILE = ClaudeStatus/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -739,7 +431,6 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ClaudeStatus/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -747,6 +438,7 @@
 				);
 				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.samcraft.ClaudeStatus;
+				INFOPLIST_FILE = ClaudeStatus/Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -833,24 +525,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7CDB633B2AB2A6FB91277581 /* Build configuration list for PBXNativeTarget "ClaudeStatusiOSWidget" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A2C62187334E7E4E9AFADC75 /* Release */,
-				97E0ABAF7F6142EA4BCDE092 /* Debug */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		80022CC0DE72C2D40DAD5A07 /* Build configuration list for PBXNativeTarget "ClaudeStatusiOS" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BDD28D59CB3B5CA17FBE347D /* Release */,
-				A1A5B18AA9A48B86B561B680 /* Debug */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		EBF80B452FAEA92300BB132E /* Build configuration list for PBXProject "ClaudeStatus" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -899,16 +573,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0CB2287B2FCB1D490371C15D /* ClaudeStatusCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EBF80B762FAEB0FE00BB132E /* XCLocalSwiftPackageReference "ClaudeStatusCore" */;
-			productName = ClaudeStatusCore;
-		};
-		5241A79ABAE8515F84F46CAB /* ClaudeStatusCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EBF80B762FAEB0FE00BB132E /* XCLocalSwiftPackageReference "ClaudeStatusCore" */;
-			productName = ClaudeStatusCore;
-		};
 		EBF80B772FAEB0FE00BB132E /* ClaudeStatusCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ClaudeStatusCore;

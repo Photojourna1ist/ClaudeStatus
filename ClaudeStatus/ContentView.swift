@@ -20,14 +20,29 @@ enum UpdaterBridge {
 // MARK: - Size
 
 enum WidgetSize: String, CaseIterable, Codable {
-    case small, medium, wide, large
+    case small, medium, wide, large, heroDonut, rings, trio
 
     var dimensions: CGSize {
         switch self {
-        case .small:  return CGSize(width: 160, height: 80)
-        case .medium: return CGSize(width: 220, height: 150)
-        case .wide:   return CGSize(width: 348, height: 164)
-        case .large:  return CGSize(width: 280, height: 240)
+        case .small:     return CGSize(width: 160, height: 80)
+        case .medium:    return CGSize(width: 220, height: 150)
+        case .wide:      return CGSize(width: 348, height: 164)
+        case .large:     return CGSize(width: 280, height: 240)
+        case .heroDonut: return CGSize(width: 348, height: 164)
+        case .rings:     return CGSize(width: 348, height: 164)
+        case .trio:      return CGSize(width: 348, height: 164)
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .small:     return "Small"
+        case .medium:    return "Medium"
+        case .wide:      return "Wide"
+        case .large:     return "Large"
+        case .heroDonut: return "Hero Donut"
+        case .rings:     return "Concentric Rings"
+        case .trio:      return "Trio Donuts"
         }
     }
 }
@@ -45,8 +60,8 @@ final class UsageStore: ObservableObject {
     @Published var activityLog: [ActivityEntry] = []
 
     private var refreshTask: Task<Void, Never>?
-    private var currentInterval: TimeInterval = 60   // seconds between fetches
-    private let baseInterval: TimeInterval = 60
+    private var currentInterval: TimeInterval = 30   // seconds between fetches
+    private let baseInterval: TimeInterval = 30
     private let maxInterval: TimeInterval = 900      // 15 min cap
 
     func start() {
@@ -87,6 +102,7 @@ final class UsageStore: ObservableObject {
             lastFetch = Date()
             currentInterval = baseInterval
             SharedCache.write(response)
+            ResetTimeSync.write(resetDate: response.fiveHour?.resetDate, utilization: response.fiveHour?.utilization)
             log(.success, "Fetched OK")
         } catch let api as APIError {
             errorMessage = api.description
@@ -129,7 +145,7 @@ struct RootView: View {
                             sizeRaw = s.rawValue
                         } label: {
                             HStack {
-                                Text(s.rawValue.capitalized)
+                                Text(s.displayName)
                                 if s == size { Image(systemName: "checkmark") }
                             }
                         }
@@ -148,7 +164,7 @@ struct RootView: View {
                 }
                 Button("Check for Updates…") { UpdaterBridge.checkForUpdates() }
                 Divider()
-                Button("Quit") { NSApp.terminate(nil) }
+                Button("Hide Window") { NSApp.windows.first(where: { $0 is FloatingPanel })?.orderOut(nil) }
             }
     }
 }
@@ -162,14 +178,17 @@ struct WidgetView: View {
     var body: some View {
         Group {
             switch size {
-            case .small:  SmallView(store: store)
-            case .medium: MediumView(store: store)
-            case .wide:   WideView(store: store)
-            case .large:  LargeView(store: store)
+            case .small:     SmallView(store: store)
+            case .medium:    MediumView(store: store)
+            case .wide:      WideView(store: store)
+            case .large:     LargeView(store: store)
+            case .heroDonut: HeroDonutFloatingView(store: store)
+            case .rings:     RingsFloatingView(store: store)
+            case .trio:      TrioFloatingView(store: store)
             }
         }
         .padding(EdgeInsets(top: 10, leading: 12, bottom: 10, trailing: 12))
-        .background(ThemeStore.shared.background)
+        .background(ThemeStore.shared.backgroundStyle)
         .clipShape(RoundedRectangle(cornerRadius:14, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius:14, style: .continuous)
@@ -434,6 +453,53 @@ struct UsageRow: View {
     }
 }
 
+
+// MARK: - Donut floating views
+
+struct HeroDonutFloatingView: View {
+    @ObservedObject var store: UsageStore
+    @ObservedObject var theme = ThemeStore.shared
+    var body: some View {
+        UsageDonutHero(
+            fiveHourUtil: store.fiveHour?.utilization,
+            fiveHourReset: store.fiveHour?.resetDate,
+            sevenDayUtil: store.sevenDay?.utilization,
+            extraUtil: store.extraUsage?.utilization,
+            extraUsed: store.extraUsage?.usedCredits,
+            extraLimit: store.extraUsage?.monthlyLimit
+        )
+    }
+}
+
+struct RingsFloatingView: View {
+    @ObservedObject var store: UsageStore
+    @ObservedObject var theme = ThemeStore.shared
+    var body: some View {
+        UsageDonutRings(
+            fiveHourUtil: store.fiveHour?.utilization,
+            sevenDayUtil: store.sevenDay?.utilization,
+            extraUtil: store.extraUsage?.utilization,
+            extraUsed: store.extraUsage?.usedCredits,
+            extraLimit: store.extraUsage?.monthlyLimit
+        )
+    }
+}
+
+struct TrioFloatingView: View {
+    @ObservedObject var store: UsageStore
+    @ObservedObject var theme = ThemeStore.shared
+    var body: some View {
+        UsageDonutTrio(
+            fiveHourUtil: store.fiveHour?.utilization,
+            fiveHourReset: store.fiveHour?.resetDate,
+            sevenDayUtil: store.sevenDay?.utilization,
+            sevenDayReset: store.sevenDay?.resetDate,
+            extraUtil: store.extraUsage?.utilization,
+            extraUsed: store.extraUsage?.usedCredits,
+            extraLimit: store.extraUsage?.monthlyLimit
+        )
+    }
+}
 // MARK: - Wide  (top: 7d + Credits, bottom: 5h hero)
 
 struct WideView: View {
@@ -442,7 +508,7 @@ struct WideView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            StatusHeader(showStatusDot: true, isHealthy: store.errorMessage == nil)
+            StatusHeader(showStatusDot: true, isHealthy: store.errorMessage == nil, onIconTap: { (NSApp.delegate as? AppDelegate)?.popUpStatusMenu() })
 
             HStack(alignment: .top, spacing: 10) {
                 UsageColumn(
@@ -610,7 +676,7 @@ struct GeneralSettingsTab: View {
             Section {
                 Picker("Widget size", selection: $sizeRaw) {
                     ForEach(WidgetSize.allCases, id: \.self) { s in
-                        Text(s.rawValue.capitalized).tag(s.rawValue)
+                        Text(s.displayName).tag(s.rawValue)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -657,6 +723,15 @@ struct GeneralSettingsTab: View {
             }
 
             Section("Customization") {
+                Picker("Background style", selection: Binding(
+                    get: { theme.backgroundMode },
+                    set: { theme.backgroundMode = $0; WidgetCenter.shared.reloadAllTimelines() }
+                )) {
+                    ForEach(BackgroundMode.allCases) { mode in
+                        Text(mode.displayName).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
                 ColorPicker("Background", selection: Binding(
                     get: { theme.background },
                     set: { theme.backgroundHex = $0.hexString; WidgetCenter.shared.reloadAllTimelines() }
