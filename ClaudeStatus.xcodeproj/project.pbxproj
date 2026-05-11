@@ -78,6 +78,7 @@
 
 /* Begin PBXFileReference section */
 		1696CCA63D6F9664883FC53D /* iOSSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = iOSSettingsView.swift; sourceTree = "<group>"; };
+		2013C6CAC670FE61C720B62F /* ClaudeStatusiOSWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = ClaudeStatusiOSWidget.entitlements; sourceTree = "<group>"; };
 		4C0672FA53CC60A0A7585630 /* ClaudeStatusiOSWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClaudeStatusiOSWidgetBundle.swift; sourceTree = "<group>"; };
 		553D1B3678A504F6918B2D01 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		5A5192B2C93AF213034D619E /* ClaudeStatusiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClaudeStatusiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,6 +90,7 @@
 		A44805B550A65DFD1E49F49E /* ClaudeStatusiOSWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ClaudeStatusiOSWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B695901C04058B2202B6215B /* ClaudeStatusiOSWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClaudeStatusiOSWidget.swift; sourceTree = "<group>"; };
 		B6BFF927B1025DE527A8BECC /* ClaudeStatusiOSApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClaudeStatusiOSApp.swift; sourceTree = "<group>"; };
+		DBA6E79AC03B93CCF47250E0 /* ClaudeStatusiOS.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = ClaudeStatusiOS.entitlements; sourceTree = "<group>"; };
 		E3AF3F5C48CFD39907D5362A /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EBF80B4A2FAEA92300BB132E /* ClaudeStatus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClaudeStatus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EBF80B5C2FAEABCE00BB132E /* ClaudeStatusWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ClaudeStatusWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -174,6 +176,7 @@
 				927CEA170CCB6D03BB87AF2C /* Assets.xcassets */,
 				70E0C7BD1FF7F84CD4800B83 /* NotificationManager.swift */,
 				1696CCA63D6F9664883FC53D /* iOSSettingsView.swift */,
+				DBA6E79AC03B93CCF47250E0 /* ClaudeStatusiOS.entitlements */,
 			);
 			name = ClaudeStatusiOS;
 			path = ClaudeStatusiOS;
@@ -194,6 +197,7 @@
 			children = (
 				B695901C04058B2202B6215B /* ClaudeStatusiOSWidget.swift */,
 				859C26E779400077BCEF7E8A /* Assets.xcassets */,
+				2013C6CAC670FE61C720B62F /* ClaudeStatusiOSWidget.entitlements */,
 			);
 			name = ClaudeStatusiOSWidget;
 			path = ClaudeStatusiOSWidget;
@@ -474,6 +478,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ClaudeStatusiOSWidget/ClaudeStatusiOSWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KA8W38TG5Q;
@@ -496,6 +501,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ClaudeStatusiOS/ClaudeStatusiOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ClaudeStatusiOS/Preview Content\"";
@@ -523,6 +529,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ClaudeStatusiOSWidget/ClaudeStatusiOSWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KA8W38TG5Q;
@@ -546,6 +553,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ClaudeStatusiOS/ClaudeStatusiOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ClaudeStatusiOS/Preview Content\"";

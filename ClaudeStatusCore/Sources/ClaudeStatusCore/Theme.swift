@@ -162,8 +162,13 @@ public enum ThemeDefaults {
     public static let backgroundMode     = BackgroundMode.solid
     public static let accentHex          = "#FF9500"
     public static let barHex             = ""
+    #if os(iOS)
+    public static let accentMode         = ColorMode.stepped
+    public static let barMode            = ColorMode.stepped
+    #else
     public static let accentMode         = ColorMode.solid
     public static let barMode            = ColorMode.gradient
+    #endif
     public static let backgroundColor    = Color.black
     public static let accentColor        = Color.orange
 }
