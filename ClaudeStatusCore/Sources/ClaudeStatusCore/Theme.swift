@@ -282,8 +282,11 @@ public final class ThemeStore: ObservableObject {
     }
     public static func readBarMode() -> ColorMode {
         if let raw = SharedCache.defaults.string(forKey: ThemeKeys.barMode), let m = ColorMode(rawValue: raw) { return m }
+        // Migration: a stored non-empty bar hex meant the user had picked a solid color
         let hex = SharedCache.defaults.string(forKey: ThemeKeys.barHex) ?? ""
-        return hex.isEmpty ? .gradient : .solid
+        if !hex.isEmpty { return .solid }
+        // Fall through to platform default (stepped on iOS, gradient on macOS)
+        return ThemeDefaults.barMode
     }
     public static func readAccentColor(forUtilization u: Double?) -> Color {
         switch readAccentMode() {
