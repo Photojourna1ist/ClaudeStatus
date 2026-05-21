@@ -346,8 +346,9 @@ public struct UsageDonutHero: View {
                 VStack(spacing: 0) {
                     Text("RESETS IN")
                         .font(.system(size: 9, weight: .medium))
-                        .tracking(1.2)
+                        .kerning(1.2)
                         .foregroundStyle(Color(white: 0.45))
+                        .multilineTextAlignment(.center)
                     if let d = fiveHourReset {
                         Text(d, style: .timer)
                             .font(.system(size: 18, weight: .semibold, design: .rounded))
@@ -355,6 +356,7 @@ public struct UsageDonutHero: View {
                             .foregroundStyle(heroAccent)
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
+                            .multilineTextAlignment(.center)
                     } else {
                         Text("—:—")
                             .font(.system(size: 18, weight: .semibold, design: .rounded))
