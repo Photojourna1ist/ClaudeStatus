@@ -45,6 +45,12 @@ enum WidgetSize: String, CaseIterable, Codable {
         case .trio:      return "Trio Donuts"
         }
     }
+
+    var next: WidgetSize {
+        let all = WidgetSize.allCases
+        let idx = all.firstIndex(of: self)!
+        return all[(idx + 1) % all.count]
+    }
 }
 
 // MARK: - Store
@@ -58,6 +64,7 @@ final class UsageStore: ObservableObject {
     @Published var lastFetch: Date?
     @Published var isLoading: Bool = false
     @Published var activityLog: [ActivityEntry] = []
+    @Published var authError: Bool = SharedCache.authError
 
     private var refreshTask: Task<Void, Never>?
     private var currentInterval: TimeInterval = 30   // seconds between fetches
@@ -103,6 +110,8 @@ final class UsageStore: ObservableObject {
             currentInterval = baseInterval
             SharedCache.write(response)
             ResetTimeSync.write(resetDate: response.fiveHour?.resetDate, utilization: response.fiveHour?.utilization)
+            setAuthError(false)
+            WidgetCenter.shared.reloadAllTimelines()
             log(.success, "Fetched OK")
         } catch let api as APIError {
             errorMessage = api.description
@@ -113,10 +122,21 @@ final class UsageStore: ObservableObject {
                 currentInterval = min(currentInterval * 2, maxInterval)
                 log(.error, api.description)
             }
+            if case .http(let code) = api, code == 400 || code == 401 {
+                setAuthError(true)
+            }
         } catch {
             errorMessage = error.localizedDescription
             currentInterval = min(currentInterval * 2, maxInterval)
             log(.error, error.localizedDescription)
+        }
+    }
+
+    private func setAuthError(_ value: Bool) {
+        if authError != value {
+            authError = value
+            SharedCache.authError = value
+            WidgetCenter.shared.reloadAllTimelines()
         }
     }
 
@@ -138,6 +158,9 @@ struct RootView: View {
     var body: some View {
         WidgetView(store: store, size: size)
             .frame(width: size.dimensions.width, height: size.dimensions.height)
+            .onTapGesture(count: 2) {
+                sizeRaw = size.next.rawValue
+            }
             .contextMenu {
                 Menu("Size") {
                     ForEach(WidgetSize.allCases, id: \.self) { s in
@@ -173,27 +196,70 @@ struct RootView: View {
 
 struct WidgetView: View {
     @ObservedObject var store: UsageStore
+    @ObservedObject private var theme = ThemeStore.shared
     let size: WidgetSize
 
     var body: some View {
-        Group {
-            switch size {
-            case .small:     SmallView(store: store)
-            case .medium:    MediumView(store: store)
-            case .wide:      WideView(store: store)
-            case .large:     LargeView(store: store)
-            case .heroDonut: HeroDonutFloatingView(store: store)
-            case .rings:     RingsFloatingView(store: store)
-            case .trio:      TrioFloatingView(store: store)
+        VStack(spacing: 0) {
+            if store.authError {
+                AuthExpiredBanner()
+            }
+            Group {
+                switch size {
+                case .small:     SmallView(store: store)
+                case .medium:    MediumView(store: store)
+                case .wide:      WideView(store: store)
+                case .large:     LargeView(store: store)
+                case .heroDonut: HeroDonutFloatingView(store: store)
+                case .rings:     RingsFloatingView(store: store)
+                case .trio:      TrioFloatingView(store: store)
+                }
             }
         }
         .padding(EdgeInsets(top: 10, leading: 12, bottom: 10, trailing: 12))
-        .background(ThemeStore.shared.backgroundStyle)
+        .background(theme.backgroundStyle)
         .clipShape(RoundedRectangle(cornerRadius:14, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius:14, style: .continuous)
-                .strokeBorder(ThemeStore.shared.accent.opacity(0.25), lineWidth: 0.5)
+                .strokeBorder(theme.accent.opacity(0.25), lineWidth: 0.5)
         )
+    }
+}
+
+struct AuthExpiredBanner: View {
+    var body: some View {
+        Button {
+            AuthFlow.startReauth()
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "key.slash.fill")
+                    .font(.system(size: 10, weight: .semibold))
+                Text("Sign in to Claude")
+                    .font(.system(size: 10, weight: .semibold))
+                Spacer(minLength: 0)
+                Text("Fix")
+                    .font(.system(size: 10, weight: .bold))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.white.opacity(0.18))
+                    .clipShape(Capsule())
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .frame(maxWidth: .infinity)
+            .background(
+                LinearGradient(
+                    colors: [Color(red: 0.92, green: 0.27, blue: 0.27),
+                             Color(red: 0.78, green: 0.18, blue: 0.32)],
+                    startPoint: .leading, endPoint: .trailing
+                )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .padding(.bottom, 6)
+        .help("ClaudeStatus can no longer refresh — re-authenticate Claude Code")
     }
 }
 
@@ -203,11 +269,13 @@ struct SmallView: View {
     @ObservedObject var store: UsageStore
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        let util = store.fiveHour?.utilization
+        let accent = ThemeStore.shared.accentColor(forUtilization: util)
+        return VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 4) {
                 Image(systemName: "hourglass")
                     .font(.system(size: 10))
-                    .foregroundColor(ThemeStore.shared.accent.opacity(0.7))
+                    .foregroundColor(accent.opacity(0.7))
                 Text("Current Session")
                     .font(.system(size: 10, weight: .bold))
                     .tracking(0.5)
@@ -216,20 +284,20 @@ struct SmallView: View {
                 if let f = store.fiveHour {
                     Text("\(Int(f.utilization))%")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(ThemeStore.shared.accent)
+                        .foregroundColor(accent)
                 }
             }
             if let d = store.fiveHour?.resetDate {
                 Text(d, style: .timer)
                     .font(.system(size: 24, weight: .semibold, design: .rounded))
                     .monospacedDigit()
-                    .foregroundColor(ThemeStore.shared.accent)
+                    .foregroundColor(accent)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
             } else {
                 Text("\u{2014}:\u{2014}:\u{2014}")
                     .font(.system(size: 24, weight: .semibold, design: .rounded))
-                    .foregroundColor(ThemeStore.shared.accent.opacity(0.4))
+                    .foregroundColor(accent.opacity(0.4))
             }
             if let f = store.fiveHour {
                 PillBar(utilization: f.utilization, height: 3)
@@ -296,7 +364,8 @@ struct MediumTrackerRow: View {
     let resetDate: Date?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
+        let accent = ThemeStore.shared.accentColor(forUtilization: utilization)
+        return VStack(alignment: .leading, spacing: 3) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(label)
                     .font(.system(size: 10, weight: .medium))
@@ -305,18 +374,18 @@ struct MediumTrackerRow: View {
                     Text(d, style: .timer)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .monospacedDigit()
-                        .foregroundColor(ThemeStore.shared.accent)
+                        .foregroundColor(accent)
                         .lineLimit(1)
                 } else {
                     Text("—:—:—")
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
-                        .foregroundColor(ThemeStore.shared.accent.opacity(0.4))
+                        .foregroundColor(accent.opacity(0.4))
                 }
                 Spacer()
                 if let u = utilization {
                     Text("\(Int(u))%")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(ThemeStore.shared.accent)
+                        .foregroundColor(accent)
                 }
             }
             if let u = utilization {
@@ -332,7 +401,8 @@ struct MediumCreditsRow: View {
     let limit: Double?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
+        let accent = ThemeStore.shared.accentColor(forUtilization: utilization)
+        return VStack(alignment: .leading, spacing: 3) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text("Extra Usage")
                     .font(.system(size: 10, weight: .medium))
@@ -341,12 +411,12 @@ struct MediumCreditsRow: View {
                     Text(String(format: "$%.2f / $%.2f", used / 100, limit / 100))
                         .font(.system(size: 18, weight: .semibold, design: .rounded))
                         .monospacedDigit()
-                        .foregroundColor(ThemeStore.shared.accent)
+                        .foregroundColor(accent)
                 }
                 Spacer()
                 Text("\(Int(utilization))%")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(ThemeStore.shared.accent)
+                    .foregroundColor(accent)
             }
             PillBar(utilization: utilization, height: 3)
         }
@@ -390,6 +460,7 @@ struct LargeView: View {
             )
 
             if let extra = store.extraUsage, extra.isEnabled, let util = extra.utilization {
+                let extraAccent = ThemeStore.shared.accentColor(forUtilization: util)
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
                         Text("Extra Usage")
@@ -398,7 +469,7 @@ struct LargeView: View {
                         Spacer()
                         Text("\(Int(util))%")
                             .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(ThemeStore.shared.accent)
+                            .foregroundColor(extraAccent)
                     }
                     PillBar(utilization: util, height: 4)
                     if let used = extra.usedCredits, let limit = extra.monthlyLimit {
@@ -427,7 +498,8 @@ struct UsageRow: View {
     let primary: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
+        let accent = ThemeStore.shared.accentColor(forUtilization: utilization)
+        return VStack(alignment: .leading, spacing: 3) {
             HStack {
                 Text(label)
                     .font(.system(size: 10))
@@ -436,14 +508,14 @@ struct UsageRow: View {
                 if let u = utilization {
                     Text("\(Int(u))%")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(ThemeStore.shared.accent)
+                        .foregroundColor(accent)
                 }
             }
             if let d = resetDate {
                 Text(d, style: .timer)
                     .font(.system(size: primary ? 18 : 13, weight: .semibold, design: .rounded))
                     .monospacedDigit()
-                    .foregroundColor(ThemeStore.shared.accent)
+                    .foregroundColor(accent)
                     .lineLimit(1)
             }
             if let u = utilization {

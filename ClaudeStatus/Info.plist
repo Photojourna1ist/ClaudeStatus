@@ -8,5 +8,16 @@
     <string>https://photojourna1ist.github.io/ClaudeStatus/appcast.xml</string>
     <key>LSUIElement</key>
     <true/>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.samcraft.ClaudeStatus.reauth</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>claudestatus</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>

@@ -28,6 +28,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory) // No Dock icon
 
+        // Handle claudestatus://reauth from the widget extension.
+        NSAppleEventManager.shared().setEventHandler(
+            self,
+            andSelector: #selector(handleURLEvent(_:withReplyEvent:)),
+            forEventClass: AEEventClass(kInternetEventClass),
+            andEventID: AEEventID(kAEGetURL)
+        )
+
         let root = RootView(store: store)
         let hosting = NSHostingController(rootView: root)
         hosting.sizingOptions = [.preferredContentSize] // Window auto-fits content
@@ -104,7 +112,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func setupStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = item.button {
-            button.image = NSImage(systemSymbolName: "hourglass", accessibilityDescription: "Claude Status")
+            let img = NSImage(systemSymbolName: "c.circle.fill", accessibilityDescription: "Claude Status")
+            img?.isTemplate = false
+            button.image = img
+            // Vibrant purple — not the muted system tint, but close to Claude's brand violet.
+            button.contentTintColor = NSColor(red: 0.56, green: 0.40, blue: 0.95, alpha: 1.0)
         }
         let menu = NSMenu()
         menu.delegate = self
@@ -143,6 +155,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func menuQuit(_ sender: Any?) {
         NSApp.terminate(nil)
+    }
+
+    @objc func handleURLEvent(_ event: NSAppleEventDescriptor, withReplyEvent reply: NSAppleEventDescriptor) {
+        guard let raw = event.paramDescriptor(forKeyword: AEKeyword(keyDirectObject))?.stringValue,
+              let url = URL(string: raw) else { return }
+        if url.scheme == "claudestatus" && url.host == "reauth" {
+            AuthFlow.startReauth()
+        }
     }
 
     func menuWillOpen(_ menu: NSMenu) {

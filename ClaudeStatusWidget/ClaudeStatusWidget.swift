@@ -8,22 +8,53 @@ struct UsageEntry: TimelineEntry {
     let date: Date
     let usage: UsageResponse?
     let lastFetch: Date?
+    let authError: Bool
 }
 
 struct UsageProvider: TimelineProvider {
     func placeholder(in context: Context) -> UsageEntry {
-        UsageEntry(date: Date(), usage: nil, lastFetch: nil)
+        UsageEntry(date: Date(), usage: nil, lastFetch: nil, authError: false)
     }
     func getSnapshot(in context: Context, completion: @escaping (UsageEntry) -> Void) {
         let cached = SharedCache.read()
-        completion(UsageEntry(date: Date(), usage: cached?.response, lastFetch: cached?.fetchedAt))
+        completion(UsageEntry(date: Date(), usage: cached?.response, lastFetch: cached?.fetchedAt, authError: SharedCache.authError))
     }
     func getTimeline(in context: Context, completion: @escaping (Timeline<UsageEntry>) -> Void) {
         let cached = SharedCache.read()
         let now = Date()
-        let entry = UsageEntry(date: now, usage: cached?.response, lastFetch: cached?.fetchedAt)
+        let entry = UsageEntry(date: now, usage: cached?.response, lastFetch: cached?.fetchedAt, authError: SharedCache.authError)
         let next = now.addingTimeInterval(15 * 60)
         completion(Timeline(entries: [entry], policy: .after(next)))
+    }
+}
+
+/// URL the whole widget opens when auth is dead — main app handles it.
+let reauthURL = URL(string: "claudestatus://reauth")!
+
+struct WidgetAuthExpiredView: View {
+    @Environment(\.widgetFamily) var family
+    var body: some View {
+        let small = family == .systemSmall
+        VStack(alignment: .leading, spacing: small ? 4 : 6) {
+            HStack(spacing: 4) {
+                Image(systemName: "key.slash.fill")
+                    .font(.system(size: small ? 11 : 12, weight: .semibold))
+                Text("Sign in")
+                    .font(.system(size: small ? 10 : 11, weight: .bold))
+                    .tracking(0.5)
+                Spacer()
+            }
+            .foregroundStyle(Color(red: 0.97, green: 0.55, blue: 0.55))
+            Text(small ? "Auth expired" : "ClaudeStatus can't refresh")
+                .font(.system(size: small ? 13 : 16, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white)
+                .lineLimit(2)
+                .minimumScaleFactor(0.7)
+            Text("Tap to fix")
+                .font(.system(size: small ? 9 : 10, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.7))
+            Spacer(minLength: 0)
+        }
     }
 }
 
@@ -35,6 +66,7 @@ struct ClaudeStatusWidget: Widget {
         StaticConfiguration(kind: kind, provider: UsageProvider()) { entry in
             ClaudeStatusWidgetEntryView(entry: entry)
                 .containerBackground(ThemeStore.readBackgroundStyle(), for: .widget)
+                .widgetURL(entry.authError ? reauthURL : nil)
         }
         .configurationDisplayName("Claude Status")
         .description("Time until your Claude usage limits reset.")
@@ -48,11 +80,15 @@ struct ClaudeStatusWidgetEntryView: View {
     var entry: UsageEntry
     @Environment(\.widgetFamily) var family
     var body: some View {
-        switch family {
-        case .systemSmall:  WidgetSmallView(entry: entry)
-        case .systemMedium: WidgetMediumView(entry: entry)
-        case .systemLarge:  WidgetLargeView(entry: entry)
-        default:            WidgetSmallView(entry: entry)
+        if entry.authError {
+            WidgetAuthExpiredView()
+        } else {
+            switch family {
+            case .systemSmall:  WidgetSmallView(entry: entry)
+            case .systemMedium: WidgetMediumView(entry: entry)
+            case .systemLarge:  WidgetLargeView(entry: entry)
+            default:            WidgetSmallView(entry: entry)
+            }
         }
     }
 }
@@ -196,15 +232,22 @@ struct ClaudeStatusHeroDonutWidget: Widget {
     let kind: String = "ClaudeStatusHeroDonutWidget"
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: UsageProvider()) { entry in
-            UsageDonutHero(
-                fiveHourUtil: entry.usage?.fiveHour?.utilization,
-                fiveHourReset: entry.usage?.fiveHour?.resetDate,
-                sevenDayUtil: entry.usage?.sevenDay?.utilization,
-                extraUtil: entry.usage?.extraUsage?.utilization,
-                extraUsed: entry.usage?.extraUsage?.usedCredits,
-                extraLimit: entry.usage?.extraUsage?.monthlyLimit
-            )
+            Group {
+                if entry.authError {
+                    WidgetAuthExpiredView()
+                } else {
+                    UsageDonutHero(
+                        fiveHourUtil: entry.usage?.fiveHour?.utilization,
+                        fiveHourReset: entry.usage?.fiveHour?.resetDate,
+                        sevenDayUtil: entry.usage?.sevenDay?.utilization,
+                        extraUtil: entry.usage?.extraUsage?.utilization,
+                        extraUsed: entry.usage?.extraUsage?.usedCredits,
+                        extraLimit: entry.usage?.extraUsage?.monthlyLimit
+                    )
+                }
+            }
             .containerBackground(ThemeStore.readBackgroundStyle(), for: .widget)
+            .widgetURL(entry.authError ? reauthURL : nil)
         }
         .configurationDisplayName("Claude Status: Hero Donut")
         .description("Big current-session percentage with a donut chart and color-dot legend.")
@@ -218,14 +261,21 @@ struct ClaudeStatusRingsWidget: Widget {
     let kind: String = "ClaudeStatusRingsWidget"
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: UsageProvider()) { entry in
-            UsageDonutRings(
-                fiveHourUtil: entry.usage?.fiveHour?.utilization,
-                sevenDayUtil: entry.usage?.sevenDay?.utilization,
-                extraUtil: entry.usage?.extraUsage?.utilization,
-                extraUsed: entry.usage?.extraUsage?.usedCredits,
-                extraLimit: entry.usage?.extraUsage?.monthlyLimit
-            )
+            Group {
+                if entry.authError {
+                    WidgetAuthExpiredView()
+                } else {
+                    UsageDonutRings(
+                        fiveHourUtil: entry.usage?.fiveHour?.utilization,
+                        sevenDayUtil: entry.usage?.sevenDay?.utilization,
+                        extraUtil: entry.usage?.extraUsage?.utilization,
+                        extraUsed: entry.usage?.extraUsage?.usedCredits,
+                        extraLimit: entry.usage?.extraUsage?.monthlyLimit
+                    )
+                }
+            }
             .containerBackground(ThemeStore.readBackgroundStyle(), for: .widget)
+            .widgetURL(entry.authError ? reauthURL : nil)
         }
         .configurationDisplayName("Claude Status: Concentric Rings")
         .description("Three nested ring arcs, one per tracker, with the most urgent percentage in the center.")
@@ -239,16 +289,23 @@ struct ClaudeStatusTrioWidget: Widget {
     let kind: String = "ClaudeStatusTrioWidget"
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: UsageProvider()) { entry in
-            UsageDonutTrio(
-                fiveHourUtil: entry.usage?.fiveHour?.utilization,
-                fiveHourReset: entry.usage?.fiveHour?.resetDate,
-                sevenDayUtil: entry.usage?.sevenDay?.utilization,
-                sevenDayReset: entry.usage?.sevenDay?.resetDate,
-                extraUtil: entry.usage?.extraUsage?.utilization,
-                extraUsed: entry.usage?.extraUsage?.usedCredits,
-                extraLimit: entry.usage?.extraUsage?.monthlyLimit
-            )
+            Group {
+                if entry.authError {
+                    WidgetAuthExpiredView()
+                } else {
+                    UsageDonutTrio(
+                        fiveHourUtil: entry.usage?.fiveHour?.utilization,
+                        fiveHourReset: entry.usage?.fiveHour?.resetDate,
+                        sevenDayUtil: entry.usage?.sevenDay?.utilization,
+                        sevenDayReset: entry.usage?.sevenDay?.resetDate,
+                        extraUtil: entry.usage?.extraUsage?.utilization,
+                        extraUsed: entry.usage?.extraUsage?.usedCredits,
+                        extraLimit: entry.usage?.extraUsage?.monthlyLimit
+                    )
+                }
+            }
             .containerBackground(ThemeStore.readBackgroundStyle(), for: .widget)
+            .widgetURL(entry.authError ? reauthURL : nil)
         }
         .configurationDisplayName("Claude Status: Trio Donuts")
         .description("Three small donuts side-by-side, one per tracker.")
