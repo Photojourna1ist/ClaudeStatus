@@ -3,6 +3,7 @@ import AppKit
 import Sparkle
 import WidgetKit
 import ServiceManagement
+import ClaudeStatusCore
 
 @main
 struct ClaudeStatusApp: App {
@@ -111,13 +112,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func setupStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        if let button = item.button {
-            let img = NSImage(systemSymbolName: "c.circle.fill", accessibilityDescription: "Claude Status")
-            img?.isTemplate = false
-            button.image = img
-            // Vibrant purple — not the muted system tint, but close to Claude's brand violet.
-            button.contentTintColor = NSColor(red: 0.56, green: 0.40, blue: 0.95, alpha: 1.0)
-        }
+        // The button's content (live "NN%  H:MM:SS" text, or the fallback icon) is set
+        // by updateStatusTitle(), driven by a 1-second timer started below.
         let menu = NSMenu()
         menu.delegate = self
         menu.addItem(NSMenuItem(title: "Show Floating Window", action: #selector(toggleFloatingWindow(_:)), keyEquivalent: ""))
@@ -129,6 +125,69 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(NSMenuItem(title: "Quit ClaudeStatus", action: #selector(menuQuit(_:)), keyEquivalent: "q"))
         item.menu = menu
         statusItem = item
+
+        // Drive the menu-bar title from live usage and tick the countdown every second.
+        updateStatusTitle()
+        statusUpdateTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            // Scheduled timers fire on the main run loop, so it's safe to hop onto the
+            // main actor to touch the (main-actor-isolated) store and status item.
+            MainActor.assumeIsolated { self?.updateStatusTitle() }
+        }
+    }
+
+    // MARK: - Live menu-bar title
+
+    private var statusUpdateTimer: Timer?
+
+    /// Renders the menu-bar item as "NN%  H:MM:SS" for the 5-hour session, colored on the
+    /// stepped usage scale (blue <50, yellow <70, orange <90, red ≥90). Falls back to the
+    /// purple "C" icon when there's no data yet or auth has expired, so the item stays clickable.
+    private func updateStatusTitle() {
+        guard let button = statusItem?.button else { return }
+
+        guard !store.authError, let bucket = store.fiveHour else {
+            showStatusIcon(on: button)
+            return
+        }
+
+        let util = bucket.utilization
+        let pct = "\(Int(util.rounded()))%"
+        let countdown = Self.countdownString(to: bucket.resetDate)
+        let title = countdown.isEmpty ? pct : "\(pct)  \(countdown)"
+
+        let attrs: [NSAttributedString.Key: Any] = [
+            .foregroundColor: NSColor(Color.usageStepped(at: util)),
+            .font: NSFont.monospacedDigitSystemFont(
+                ofSize: NSFont.systemFontSize(for: .small), weight: .semibold)
+        ]
+        button.image = nil
+        button.attributedTitle = NSAttributedString(string: title, attributes: attrs)
+    }
+
+    /// Fallback purple "C" disc for the no-data / auth-expired states.
+    private func showStatusIcon(on button: NSStatusBarButton) {
+        button.attributedTitle = NSAttributedString(string: "")
+        button.title = ""
+        if button.image == nil {
+            let purple = NSColor(red: 0.56, green: 0.40, blue: 0.95, alpha: 1.0)
+            let config = NSImage.SymbolConfiguration(paletteColors: [.white, purple])
+            let img = NSImage(systemSymbolName: "c.circle.fill", accessibilityDescription: "Claude Status")?
+                .withSymbolConfiguration(config)
+            img?.isTemplate = false
+            button.image = img
+        }
+    }
+
+    /// Compact countdown to `date`: "H:MM:SS" when ≥1h, else "M:SS". Empty when no date.
+    private static func countdownString(to date: Date?) -> String {
+        guard let date else { return "" }
+        let remaining = Int(date.timeIntervalSinceNow.rounded())
+        if remaining <= 0 { return "0:00" }
+        let h = remaining / 3600
+        let m = (remaining % 3600) / 60
+        let s = remaining % 60
+        return h > 0 ? String(format: "%d:%02d:%02d", h, m, s)
+                     : String(format: "%d:%02d", m, s)
     }
 
     @objc private func toggleFloatingWindow(_ sender: Any?) {

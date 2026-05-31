@@ -317,7 +317,7 @@ public struct UsageDonutHero: View {
     }
 
     public var body: some View {
-        let heroAccent = ThemeStore.shared.accentColor(forUtilization: fiveHourUtil)
+        let heroAccent = ThemeStore.readAccentColor(forUtilization: fiveHourUtil)
         HStack(alignment: .center, spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
                 StatusHeader()
@@ -339,7 +339,9 @@ public struct UsageDonutHero: View {
                 Spacer(minLength: 0)
                 HStack(spacing: 10) {
                     HeroLegendItem(label: "Weekly", utilization: sevenDayUtil)
-                    HeroLegendItem(label: "Extra", utilization: extraUtil)
+                    if extraUtil != nil {
+                        HeroLegendItem(label: "Extra", utilization: extraUtil)
+                    }
                 }
             }
             UsageDonut(utilization: fiveHourUtil ?? 0, diameter: 108, strokeWidth: 11) {
@@ -374,7 +376,7 @@ struct HeroLegendItem: View {
     let label: String
     let utilization: Double?
     var body: some View {
-        let color = ThemeStore.shared.accentColor(forUtilization: utilization)
+        let color = ThemeStore.readAccentColor(forUtilization: utilization)
         HStack(spacing: 5) {
             Circle().fill(color).frame(width: 6, height: 6)
             Text(label)
@@ -409,7 +411,7 @@ public struct UsageDonutRings: View {
     }
 
     public var body: some View {
-        let heroAccent = ThemeStore.shared.accentColor(forUtilization: fiveHourUtil)
+        let heroAccent = ThemeStore.readAccentColor(forUtilization: fiveHourUtil)
         HStack(alignment: .center, spacing: 8) {
             VStack(alignment: .leading, spacing: 8) {
                 StatusHeader()
@@ -446,7 +448,7 @@ struct RingLegendItem: View {
     let utilization: Double?
     let detail: String?
     var body: some View {
-        let color = ThemeStore.shared.accentColor(forUtilization: utilization)
+        let color = ThemeStore.readAccentColor(forUtilization: utilization)
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 5) {
                 Circle().fill(color).frame(width: 6, height: 6)
@@ -524,7 +526,7 @@ struct TrioTile: View {
     let detailDate: Date?
 
     var body: some View {
-        let color = ThemeStore.shared.accentColor(forUtilization: utilization)
+        let color = ThemeStore.readAccentColor(forUtilization: utilization)
         VStack(spacing: 2) {
             UsageDonut(utilization: utilization ?? 0, diameter: 64, strokeWidth: 7) {
                 if let u = utilization {
