@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Build ClaudeStatus, install to /Applications, and refresh WidgetKit safely.\n# Usage: install-dev.sh [--kick]   (--kick also bounces widget daemons at the end)
+# Build ClaudeStatus, install to /Applications, and refresh WidgetKit safely.
+# Usage: install-dev.sh [--kick]   (--kick also bounces widget daemons at the end)
 #
 # ⚠️ Widget-safety rules learned 2026-09-05 (every violation = placed desktop
 # widget goes gray/frozen until manually revived):
