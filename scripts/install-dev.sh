@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
-# Build ClaudeStatus, install to /Applications, and force WidgetKit to re-register.
+# Build ClaudeStatus, install to /Applications, and refresh WidgetKit safely.
+#
+# ⚠️ Widget-safety rules learned 2026-09-05 (every violation = placed desktop
+# widget goes gray/frozen until manually revived):
+#   1. NEVER rm -rf + cp the bundle — rsync IN PLACE (preserves the inode).
+#   2. NEVER pluginkit -r (unregister) — only -a. Unregistering invalidates the
+#      record placed widgets resolve through.
+#   3. Bounce the widget daemons LAST, after the new registration has settled
+#      and the app is launched and fetching. Bouncing them 2s after lsregister
+#      makes the fresh daemons bind to the stale record → frozen gray widget.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -14,42 +23,26 @@ osascript -e "tell application \"ClaudeStatus\" to quit" 2>/dev/null || true
 pkill -f "ClaudeStatus.app/Contents/MacOS/ClaudeStatus" 2>/dev/null || true
 sleep 1
 
-echo "[4/8] Sync build into /Applications..."
+echo "[4/8] Sync build into /Applications (in place)..."
 DEV_APP=$(find ~/Library/Developer/Xcode/DerivedData/ClaudeStatus-*/Build/Products/Debug -maxdepth 1 -name "ClaudeStatus.app" -print -quit)
 echo "      from: $DEV_APP"
 if [ -d "/Applications/ClaudeStatus.app" ]; then
-  # Sync IN PLACE — never rm -rf + cp. Deleting the bundle directory destroys
-  # the inode that placed desktop widgets are bound to, orphaning them: they
-  # freeze on their last rendered snapshot, grayed out, until removed and
-  # re-added by hand (bitten 2026-09-05). rsync into the existing directory
-  # keeps the inode, so live widgets survive the upgrade.
   rsync -a --delete "$DEV_APP/" "/Applications/ClaudeStatus.app/"
 else
   cp -R "$DEV_APP" "/Applications/ClaudeStatus.app"
 fi
 
-echo "[5/8] Re-register widget extension..."
+echo "[5/8] Register (additive only — no unregister)..."
 EXT="/Applications/ClaudeStatus.app/Contents/PlugIns/ClaudeStatusWidgetExtension.appex"
-pluginkit -r "$EXT" 2>/dev/null || true
 pluginkit -a "$EXT"
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "/Applications/ClaudeStatus.app"
 touch "/Applications/ClaudeStatus.app"  # invalidate icon cache
 
-echo "[6/8] Kick widget cache daemons..."
-killall chronod 2>/dev/null || true
-killall NotificationCenter 2>/dev/null || true
-killall WallpaperAgent 2>/dev/null || true
-killall Wallpaper 2>/dev/null || true
-killall ControlCenter 2>/dev/null || true
-killall Dock 2>/dev/null || true
-killall Finder 2>/dev/null || true
-sleep 2
-
-echo "[7/8] Launch app..."
+echo "[6/8] Launch app..."
 LAUNCHED_AT=$(date +%s)
 open "/Applications/ClaudeStatus.app"
 
-echo "[8/8] Verify the app fetched fresh usage..."
+echo "[7/8] Verify the app fetched fresh usage..."
 PLIST="$HOME/Library/Group Containers/group.com.samcraft.ClaudeStatus/Library/Preferences/group.com.samcraft.ClaudeStatus.plist"
 verify_fetch() {
   # Wait until cachedUsage.fetchedAt (Apple epoch) is newer than launch time.
@@ -64,7 +57,7 @@ verify_fetch() {
   return 1
 }
 if verify_fetch; then
-  echo "      OK — cache is fresh; widgets have live data."
+  echo "      OK — cache is fresh."
 else
   # First launch after an install sometimes doesn't fetch/flush; one relaunch fixes it.
   echo "      no fresh fetch yet — relaunching once..."
@@ -80,4 +73,10 @@ else
   fi
 fi
 
-echo "Done. Installed, verified fetching, widgets preserved."
+echo "[8/8] Settle, then bounce widget daemons (LAST, so they bind the new registration)..."
+sleep 10
+killall chronod 2>/dev/null || true
+killall NotificationCenter 2>/dev/null || true
+killall WallpaperAgent 2>/dev/null || true
+
+echo "Done. If a placed widget still looks frozen/gray, re-run just step 8 after a minute."
