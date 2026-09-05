@@ -103,12 +103,13 @@ final class UsageStore: ObservableObject {
         isLoading = true
         defer { isLoading = false }
         do {
-            let response = try await UsageAPI.fetchUsage()
+            let fetched = try await UsageAPI.fetchUsage()
+            let response = fetched.response
             apply(response)
             errorMessage = nil
             lastFetch = Date()
             currentInterval = baseInterval
-            SharedCache.write(response)
+            SharedCache.write(response, upstreamAgeS: fetched.upstreamAgeS)
             ResetTimeSync.write(resetDate: response.fiveHour?.resetDate, utilization: response.fiveHour?.utilization)
             setAuthError(false)
             WidgetCenter.shared.reloadAllTimelines()

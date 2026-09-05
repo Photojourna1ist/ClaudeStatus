@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
-# Build ClaudeStatus, install to /Applications, and refresh WidgetKit safely.
-# Usage: install-dev.sh [--kick]   (--kick also bounces widget daemons at the end)
+# Build ClaudeStatus, install to /Applications, and refresh WidgetKit safely.\n# Usage: install-dev.sh [--kick]   (--kick also bounces widget daemons at the end)
 #
-# ⚠️ Widget-safety rules learned 2026-09-05 (every violation = placed desktop
-# widget goes gray/frozen until manually revived):
-#   1. NEVER rm -rf + cp the bundle — rsync IN PLACE (preserves the inode).
-#   2. NEVER pluginkit -r (unregister) — only -a. Unregistering invalidates the
-#      record placed widgets resolve through.
-#   3. Bounce the widget daemons LAST, after the new registration has settled
-#      and the app is launched and fetching. Bouncing them 2s after lsregister
-#      makes the fresh daemons bind to the stale record → frozen gray widget.
+# ⚠️ Widget facts proven 2026-09-05 (via the widgetTimelineAt breadcrumb):
+#   1. EVERY deploy detaches placed widgets — chronod stops calling
+#      getTimeline entirely and the widget freezes gray on its last snapshot.
+#      A deploy therefore MUST end with a daemon bounce (revive-widget.sh).
+#   2. The bounce only works AFTER the churn settles — bouncing 2s after
+#      lsregister rebinds the daemons to stale state (all-day gray loop).
+#      Hence the sleep before step 8, and never bounce mid-install.
+#   3. rsync IN PLACE, never rm -rf + cp — keep the bundle inode stable.
+#   4. Verify rendering, not processes: a running appex proves nothing; only
+#      a fresh widgetTimelineAt breadcrumb (or human eyes) proves the widget
+#      is alive.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -74,15 +76,35 @@ else
   fi
 fi
 
-if [ "${1:-}" = "--kick" ]; then
-  echo "[8/8] --kick: settling, then bouncing widget daemons..."
-  sleep 10
-  "$(dirname "$0")/revive-widget.sh"
-else
-  echo "[8/8] Widget daemons NOT touched (the safe default — placed widgets"
-  echo "      pick up the new build on their next timeline reload, which the"
-  echo "      app triggers within 30s). If the widget looks frozen a few"
-  echo "      minutes from now, run scripts/revive-widget.sh separately."
-fi
+echo "[8/8] Reattach placed widgets..."
+# Proven 2026-09-05: a deploy reliably STOPS chronod servicing placed widgets
+# (zero getTimeline calls afterward → widget freezes gray on its last
+# snapshot). The fix is a daemon bounce shortly AFTER the churn settles;
+# bouncing mid-churn (the old 2s-after-lsregister ordering) rebinds daemons to
+# stale state and is exactly what kept graying the widget all day.
+sleep 60
+"$(dirname "$0")/revive-widget.sh" >/dev/null 2>&1 || true
 
-echo "Done."
+# The widget provider writes a breadcrumb (widgetTimelineAt) on every
+# getTimeline call, and the app reloads timelines every 30s — so a live
+# placed widget must produce a fresh breadcrumb within ~2 min of the bounce.
+echo "      waiting for the widget to prove it renders (breadcrumb)..."
+BOUNCED_AT=$(date +%s)
+WDEADLINE=$(( BOUNCED_AT + 150 ))
+while [ "$(date +%s)" -lt "$WDEADLINE" ]; do
+  TS=$(plutil -extract widgetTimelineAt raw -o - "$PLIST" 2>/dev/null || true)
+  if [ -n "${TS:-}" ]; then
+    TS_EPOCH=$(python3 -c "import datetime,sys; print(int(datetime.datetime.fromisoformat(sys.argv[1].replace('Z','+00:00')).timestamp()))" "$TS" 2>/dev/null || echo 0)
+    if [ "${TS_EPOCH:-0}" -ge "$BOUNCED_AT" ]; then
+      echo "      OK — widget requested a timeline after the bounce; it's alive."
+      echo "Done. Data verified, widget verified."
+      exit 0
+    fi
+  fi
+  sleep 10
+done
+echo "      WARNING: no widget timeline request since the bounce."
+echo "      If a widget is placed, run scripts/revive-widget.sh again in a"
+echo "      minute, or remove + re-add the widget. (No placed widget on this"
+echo "      Mac = this warning is expected and harmless.)"
+echo "Done. Data verified; widget NOT confirmed."

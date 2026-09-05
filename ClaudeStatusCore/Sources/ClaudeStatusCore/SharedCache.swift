@@ -4,10 +4,15 @@ import Foundation
 public struct CachedUsage: Codable, Sendable {
     public let response: UsageResponse
     public let fetchedAt: Date
+    /// Age in seconds the proxy reported for its upstream reading at fetch time
+    /// (x-cache-age-s header). nil when the header was absent (old caches too —
+    /// the optional keeps previously stored JSON decodable).
+    public let upstreamAgeS: Int?
 
-    public init(response: UsageResponse, fetchedAt: Date = Date()) {
+    public init(response: UsageResponse, fetchedAt: Date = Date(), upstreamAgeS: Int? = nil) {
         self.response = response
         self.fetchedAt = fetchedAt
+        self.upstreamAgeS = upstreamAgeS
     }
 }
 
@@ -26,8 +31,8 @@ public enum SharedCache {
         return try? JSONDecoder().decode(CachedUsage.self, from: data)
     }
 
-    public static func write(_ response: UsageResponse) {
-        let cached = CachedUsage(response: response, fetchedAt: Date())
+    public static func write(_ response: UsageResponse, upstreamAgeS: Int? = nil) {
+        let cached = CachedUsage(response: response, fetchedAt: Date(), upstreamAgeS: upstreamAgeS)
         if let data = try? JSONEncoder().encode(cached) {
             defaults.set(data, forKey: key)
         }

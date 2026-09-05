@@ -8,23 +8,71 @@ struct UsageEntry: TimelineEntry {
     let date: Date
     let usage: UsageResponse?
     let lastFetch: Date?
+    let upstreamAgeS: Int?
     let authError: Bool
+
+    /// Effective age of the data in minutes when it's old enough to warn about
+    /// (> 15 min), else nil. Counts both how long ago WE fetched and how stale
+    /// the proxy said its upstream reading was — so a dead app, a dead VM, or a
+    /// dead token upstream all surface instead of silently showing old numbers.
+    var staleMinutes: Int? {
+        guard let lastFetch else { return nil }
+        let effective = date.timeIntervalSince(lastFetch) + TimeInterval(upstreamAgeS ?? 0)
+        return effective > 15 * 60 ? Int(effective / 60) : nil
+    }
 }
 
 struct UsageProvider: TimelineProvider {
     func placeholder(in context: Context) -> UsageEntry {
-        UsageEntry(date: Date(), usage: nil, lastFetch: nil, authError: false)
+        UsageEntry(date: Date(), usage: nil, lastFetch: nil, upstreamAgeS: nil, authError: false)
     }
     func getSnapshot(in context: Context, completion: @escaping (UsageEntry) -> Void) {
         let cached = SharedCache.read()
-        completion(UsageEntry(date: Date(), usage: cached?.response, lastFetch: cached?.fetchedAt, authError: SharedCache.authError))
+        completion(UsageEntry(date: Date(), usage: cached?.response, lastFetch: cached?.fetchedAt,
+                              upstreamAgeS: cached?.upstreamAgeS, authError: SharedCache.authError))
     }
     func getTimeline(in context: Context, completion: @escaping (Timeline<UsageEntry>) -> Void) {
         let cached = SharedCache.read()
+        let age = cached.map { Date().timeIntervalSince($0.fetchedAt) } ?? .infinity
+        // Breadcrumbs (remote-diagnosable): when getTimeline last ran + which path.
+        SharedCache.defaults.set(Date(), forKey: "widgetTimelineAt")
+        if age <= 120 {
+            // The app is alive and keeping the cache fresh — just render it.
+            SharedCache.defaults.set("cache-fresh", forKey: "widgetPath")
+            complete(with: cached, completion: completion)
+        } else {
+            // Cache is stale (app crashed, quit, or never launched). The proxy
+            // needs no auth, so the widget can fetch for itself. Loop endpoints
+            // here (not via fetchUsage) so the breadcrumb records EVERY
+            // endpoint's outcome, not just the last error.
+            Task {
+                var lines: [String] = []
+                var ok = false
+                for url in UsageAPI.endpoints {
+                    do {
+                        let fetched = try await UsageAPI.fetchOne(url)
+                        SharedCache.write(fetched.response, upstreamAgeS: fetched.upstreamAgeS)
+                        lines.append("\(url.host ?? "?") OK")
+                        ok = true
+                        break
+                    } catch {
+                        let e = error as NSError
+                        lines.append("\(url.host ?? "?") \(e.domain)#\(e.code)")
+                    }
+                }
+                SharedCache.defaults.set((ok ? "self-fetch-ok | " : "self-fetch-fail | ")
+                                         + lines.joined(separator: " ; "), forKey: "widgetPath")
+                complete(with: SharedCache.read(), completion: completion)
+            }
+        }
+    }
+    private func complete(with cached: CachedUsage?, completion: @escaping (Timeline<UsageEntry>) -> Void) {
         let now = Date()
-        let entry = UsageEntry(date: now, usage: cached?.response, lastFetch: cached?.fetchedAt, authError: SharedCache.authError)
-        let next = now.addingTimeInterval(15 * 60)
-        completion(Timeline(entries: [entry], policy: .after(next)))
+        let entry = UsageEntry(date: now, usage: cached?.response, lastFetch: cached?.fetchedAt,
+                               upstreamAgeS: cached?.upstreamAgeS, authError: SharedCache.authError)
+        // 5 min keeps the widget self-sufficient when the app is gone; while the
+        // app runs it reloads timelines on every fetch anyway.
+        completion(Timeline(entries: [entry], policy: .after(now.addingTimeInterval(5 * 60))))
     }
 }
 
@@ -80,14 +128,30 @@ struct ClaudeStatusWidgetEntryView: View {
     var entry: UsageEntry
     @Environment(\.widgetFamily) var family
     var body: some View {
-        if entry.authError {
-            WidgetAuthExpiredView()
-        } else {
-            switch family {
-            case .systemSmall:  WidgetSmallView(entry: entry)
-            case .systemMedium: WidgetMediumView(entry: entry)
-            case .systemLarge:  WidgetLargeView(entry: entry)
-            default:            WidgetSmallView(entry: entry)
+        ZStack(alignment: .bottomTrailing) {
+            Group {
+                if entry.authError {
+                    WidgetAuthExpiredView()
+                } else {
+                    switch family {
+                    case .systemSmall:  WidgetSmallView(entry: entry)
+                    case .systemMedium: WidgetMediumView(entry: entry)
+                    case .systemLarge:  WidgetLargeView(entry: entry)
+                    default:            WidgetSmallView(entry: entry)
+                    }
+                }
+            }
+            if let mins = entry.staleMinutes {
+                HStack(spacing: 2) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.system(size: 7, weight: .bold))
+                    Text(mins < 120 ? "\(mins)m old" : "\(mins / 60)h old")
+                        .font(.system(size: 8, weight: .semibold))
+                }
+                .foregroundStyle(.orange)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(.orange.opacity(0.18)))
             }
         }
     }
