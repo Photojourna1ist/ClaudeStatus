@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build ClaudeStatus, install to /Applications, and refresh WidgetKit safely.
+# Build ClaudeStatus, install to /Applications, and refresh WidgetKit safely.\n# Usage: install-dev.sh [--kick]   (--kick also bounces widget daemons at the end)
 #
 # ⚠️ Widget-safety rules learned 2026-09-05 (every violation = placed desktop
 # widget goes gray/frozen until manually revived):
@@ -73,10 +73,15 @@ else
   fi
 fi
 
-echo "[8/8] Settle, then bounce widget daemons (LAST, so they bind the new registration)..."
-sleep 10
-killall chronod 2>/dev/null || true
-killall NotificationCenter 2>/dev/null || true
-killall WallpaperAgent 2>/dev/null || true
+if [ "${1:-}" = "--kick" ]; then
+  echo "[8/8] --kick: settling, then bouncing widget daemons..."
+  sleep 10
+  "$(dirname "$0")/revive-widget.sh"
+else
+  echo "[8/8] Widget daemons NOT touched (the safe default — placed widgets"
+  echo "      pick up the new build on their next timeline reload, which the"
+  echo "      app triggers within 30s). If the widget looks frozen a few"
+  echo "      minutes from now, run scripts/revive-widget.sh separately."
+fi
 
-echo "Done. If a placed widget still looks frozen/gray, re-run just step 8 after a minute."
+echo "Done."
